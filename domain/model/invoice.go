@@ -18,6 +18,8 @@ const (
 
 type Invoice struct {
 	ID                 string
+	CompanyID          string
+	ClientID           string
 	IssueDate          string
 	DueDate            string
 	PaymentAmount      float64
@@ -29,19 +31,25 @@ type Invoice struct {
 	Status             InvoiceStatus
 }
 
+type NewInvoiceInput struct {
+	ID                      string // TODO: テストのために id を受け取るようにしているが mock を挟めるようにする
+	CompanyID               string
+	ClientID                string
+	IssueDate               string
+	DueDate                 string
+	PaymentAmount           float64
+	CommissionRateInput     CommissionRate
+	ConsumptionTaxRateInput ConsumptionTaxRate
+}
+
 func NewInvoice(
-	Id string, // TODO: テストのために id を受け取るようにしているが mock を挟めるようにする
-	IssueDate string,
-	DueDate string,
-	PaymentAmount float64,
-	CommissionRate CommissionRate,
-	ConsumptionTaxRate ConsumptionTaxRate,
+	input NewInvoiceInput,
 ) (*Invoice, error) {
-	issueDate, err := timeutil.ParseDate(IssueDate)
+	issueDate, err := timeutil.ParseDate(input.IssueDate)
 	if err != nil {
 		return nil, err
 	}
-	dueDate, err := timeutil.ParseDate(DueDate)
+	dueDate, err := timeutil.ParseDate(input.DueDate)
 	if err != nil {
 		return nil, err
 	}
@@ -49,23 +57,25 @@ func NewInvoice(
 		return nil, ErrInvalidDueDate
 	}
 
-	commission := PaymentAmount * CommissionRate.Value()
-	consumptionTax := PaymentAmount * ConsumptionTaxRate.Value()
-	invoiceAmount := PaymentAmount + commission + consumptionTax
+	commission := input.PaymentAmount * input.CommissionRateInput.Value()
+	consumptionTax := input.PaymentAmount * input.ConsumptionTaxRateInput.Value()
+	invoiceAmount := input.PaymentAmount + commission + consumptionTax
 
-	id := Id
+	id := input.ID
 	if id == "" {
 		id = ulid.Make().String()
 	}
 
 	return &Invoice{
 		ID:                 id,
-		IssueDate:          IssueDate,
-		DueDate:            DueDate,
-		PaymentAmount:      PaymentAmount,
-		CommissionRate:     CommissionRate,
+		CompanyID:          input.CompanyID,
+		ClientID:           input.ClientID,
+		IssueDate:          input.IssueDate,
+		DueDate:            input.DueDate,
+		PaymentAmount:      input.PaymentAmount,
+		CommissionRate:     input.CommissionRateInput,
 		Commission:         commission,
-		ConsumptionTaxRate: ConsumptionTaxRate,
+		ConsumptionTaxRate: input.ConsumptionTaxRateInput,
 		ConsumptionTax:     consumptionTax,
 		InvoiceAmount:      invoiceAmount,
 		Status:             InvoiceStatusUnprocessed,

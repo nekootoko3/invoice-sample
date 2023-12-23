@@ -6,32 +6,28 @@ import (
 )
 
 func TestNewInvoice(t *testing.T) {
-	type args struct {
-		id                 string
-		issueDate          string
-		dueDate            string
-		paymentAmount      float64
-		commissionRate     CommissionRate
-		consumptionTaxRate ConsumptionTaxRate
-	}
 	tests := []struct {
 		name    string
-		args    args
+		args    NewInvoiceInput
 		want    *Invoice
 		wantErr bool
 	}{
 		{
 			name: "発行日より支払日が未来の場合、請求を返却する",
-			args: args{
-				id:                 "test",
-				issueDate:          "2020-01-01",
-				dueDate:            "2020-01-31",
-				paymentAmount:      10000,
-				commissionRate:     0.1,
-				consumptionTaxRate: 0.1,
+			args: NewInvoiceInput{
+				ID:                      "test",
+				IssueDate:               "2020-01-01",
+				DueDate:                 "2020-01-31",
+				PaymentAmount:           10000,
+				CommissionRateInput:     0.1,
+				ConsumptionTaxRateInput: 0.1,
+				CompanyID:               "company-1",
+				ClientID:                "client-1",
 			},
 			want: &Invoice{
 				ID:                 "test",
+				CompanyID:          "company-1",
+				ClientID:           "client-1",
 				IssueDate:          "2020-01-01",
 				DueDate:            "2020-01-31",
 				PaymentAmount:      10000,
@@ -46,13 +42,10 @@ func TestNewInvoice(t *testing.T) {
 		},
 		{
 			name: "発行日より支払日が未来ではない場合、エラーを返却する",
-			args: args{
-				id:                 "test",
-				issueDate:          "2020-01-01",
-				dueDate:            "2020-01-01",
-				paymentAmount:      10000,
-				commissionRate:     0.1,
-				consumptionTaxRate: 0.1,
+			args: NewInvoiceInput{
+				ID:        "test",
+				IssueDate: "2020-01-01",
+				DueDate:   "2020-01-01",
 			},
 			want:    nil,
 			wantErr: true,
@@ -60,7 +53,7 @@ func TestNewInvoice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewInvoice(tt.args.id, tt.args.issueDate, tt.args.dueDate, tt.args.paymentAmount, tt.args.commissionRate, tt.args.consumptionTaxRate)
+			got, err := NewInvoice(tt.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewInvoice() error = %v, wantErr %v", err, tt.wantErr)
 				return
