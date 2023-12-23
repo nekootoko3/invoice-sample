@@ -11,7 +11,7 @@ func TestNewInvoice(t *testing.T) {
 		issueDate          string
 		dueDate            string
 		paymentAmount      float64
-		commissionRate     float64
+		commissionRate     CommissionRate
 		consumptionTaxRate float64
 	}
 	tests := []struct {

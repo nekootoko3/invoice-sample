@@ -22,7 +22,7 @@ type Invoice struct {
 	DueDate            string
 	PaymentAmount      float64
 	Commission         float64
-	CommissionRate     float64
+	CommissionRate     CommissionRate
 	ConsumptionTax     float64
 	ConsumptionTaxRate float64
 	InvoiceAmount      float64
@@ -34,7 +34,7 @@ func NewInvoice(
 	IssueDate string,
 	DueDate string,
 	PaymentAmount float64,
-	CommissionRate float64,
+	CommissionRate CommissionRate,
 	ConsumptionTaxRate float64,
 ) (*Invoice, error) {
 	issueDate, err := timeutil.ParseDate(IssueDate)
@@ -49,7 +49,7 @@ func NewInvoice(
 		return nil, ErrInvalidDueDate
 	}
 
-	commission := PaymentAmount * CommissionRate
+	commission := PaymentAmount * CommissionRate.Value()
 	consumptionTax := PaymentAmount * ConsumptionTaxRate
 	invoiceAmount := PaymentAmount + commission + consumptionTax
 
