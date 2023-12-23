@@ -8,4 +8,5 @@ type Client struct {
 	ZipCode        string
 	Address        string
 	BankAccount    ClientBankAccount
+	CompanyID      string
 }
