@@ -83,5 +83,5 @@ func NewInvoice(
 }
 
 type InvoiceRepository interface {
-	CreateInvoice(ctx context.Context, invoice Invoice) error
+	Create(ctx context.Context, invoice *Invoice) error
 }
